@@ -1,9 +1,8 @@
 package app.mi2014.idem.views;
 
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -12,9 +11,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -30,6 +27,7 @@ import app.mi2014.idem.app.AppController;
 import app.mi2014.idem.utils.PrefUtils;
 import app.mi2014.idem.views.fragments.CourseFragment;
 import app.mi2014.idem.views.fragments.HomeFragment;
+import cn.pedant.SweetAlert.SweetAlertDialog;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity
@@ -42,11 +40,33 @@ public class MainActivity extends AppCompatActivity
     private TextView mProfileNim;
     private CircleImageView mProfileImage;
 
+    private String jsonActiveCourse;
+    private SweetAlertDialog pDialog;
     private int currentMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        jsonActiveCourse = PrefUtils.get(PrefUtils.KEY_ACTIVE_COURSE, "");
+
+        Log.d(AppController.TAG, "CREATE: " + jsonActiveCourse);
+
+        if (jsonActiveCourse.equals("")) {
+            pDialog = new SweetAlertDialog(this, SweetAlertDialog.NORMAL_TYPE);
+            pDialog.setTitleText("Opps,");
+            pDialog.setContentText("It's first time you login, please set your active course.");
+            pDialog.setCancelable(false);
+            pDialog.setConfirmText("OK");
+            pDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                @Override
+                public void onClick(SweetAlertDialog sweetAlertDialog) {
+                    Intent intent = new Intent(MainActivity.this, CourseSettingActivity.class);
+                    startActivity(intent);
+                }
+            });
+            pDialog.show();
+        }
 
         Intent intent = getIntent();
 
@@ -114,6 +134,7 @@ public class MainActivity extends AppCompatActivity
         ft.commit();
         currentMenu = mNavView.getMenu().getItem(0).getItemId();
         Log.d(AppController.TAG, "Menu: " + currentMenu);
+
     }
 
     @Override
@@ -165,6 +186,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_share) {
             newFragment = new HomeFragment();
         } else if (id == R.id.nav_send) {
+            PrefUtils.save(PrefUtils.KEY_ACTIVE_COURSE, "");
             newFragment = new HomeFragment();
         } else if (id == R.id.nav_signout) {
             confirmSignOut();
@@ -187,38 +209,52 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void confirmSignOut() {
-        Context context = this;
-        final AlertDialog alert = new AlertDialog.Builder(
-                new ContextThemeWrapper(context, R.style.AppTheme_Dialog))
-                .create();
-        alert.setTitle("Confirmation");
-        alert.setMessage("Are you sure want to sign out ?");
-        alert.setIcon(R.drawable.ic_menu_information);
-        alert.setCancelable(false);
-        alert.setCanceledOnTouchOutside(false);
+        pDialog = new SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE);
+        pDialog.setTitleText("Confirmation");
+        pDialog.setContentText("Are you sure want to sign out ?");
+        pDialog.setCancelable(false);
+        pDialog.setCancelText("No");
+        pDialog.setConfirmText("Yes");
+        pDialog.showCancelButton(true);
+        pDialog.setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+            @Override
+            public void onClick(SweetAlertDialog sDialog) {
+                sDialog.cancel();
+            }
+        });
+        pDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+            private SweetAlertDialog respon;
 
-        alert.setButton(DialogInterface.BUTTON_POSITIVE, "Yes",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        alert.dismiss();
-
+            @Override
+            public void onClick(SweetAlertDialog sDialog) {
+                respon = sDialog;
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
                         PrefUtils.save(PrefUtils.KEY_APP_SESSION, "");
-                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                        finish();
-
+                        respon.setContentText("Logout Success!");
+                        respon.changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
+                        respon.showCancelButton(false);
+                        respon.setConfirmText("OK");
+                        respon.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                            @Override
+                            public void onClick(SweetAlertDialog sDialog) {
+                                startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                                finish();
+                            }
+                        });
                     }
-                });
+                }, 1000);
+            }
+        });
+        pDialog.show();
+    }
 
-        alert.setButton(DialogInterface.BUTTON_NEGATIVE, "No",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        alert.dismiss();
-
-                    }
-                });
-
-        alert.show();
+    @Override
+    public void onResume() {
+        jsonActiveCourse = PrefUtils.get(PrefUtils.KEY_ACTIVE_COURSE, "");
+        if (pDialog != null && !jsonActiveCourse.equals("")) pDialog.dismiss();
+        Log.d(AppController.TAG, "RESUME: " + jsonActiveCourse);
+        super.onResume();
     }
 }

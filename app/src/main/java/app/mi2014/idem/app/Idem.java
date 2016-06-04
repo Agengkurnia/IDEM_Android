@@ -18,7 +18,17 @@ public class Idem {
         AppController.getInstance().addToRequestQueue(ApiRequest);
     }
 
-    public static void isLoggedin() {
+    public static void GetCourses(String session, Response.Listener onResponse, Response.ErrorListener onError) {
+        String API_URL = API_BASE + "/user/mycourse/?src=android&session=" + session;
+        JsonObjectRequest ApiRequest = new JsonObjectRequest(Request.Method.GET, API_URL, null, onResponse, onError);
+        ApiRequest.setRetryPolicy(new DefaultRetryPolicy(10000, 2, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        AppController.getInstance().addToRequestQueue(ApiRequest);
+    }
 
+    public static void GetActiveCourses(String token, Response.Listener onResponse, Response.ErrorListener onError) {
+        String API_URL = API_BASE + "/user/activecourse/?src=android&token=" + token;
+        JsonObjectRequest ApiRequest = new JsonObjectRequest(Request.Method.GET, API_URL, null, onResponse, onError);
+        ApiRequest.setRetryPolicy(new DefaultRetryPolicy(10000, 2, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        AppController.getInstance().addToRequestQueue(ApiRequest);
     }
 }

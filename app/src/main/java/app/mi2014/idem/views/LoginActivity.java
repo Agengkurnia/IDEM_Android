@@ -34,6 +34,7 @@ import app.mi2014.idem.app.AppController;
 import app.mi2014.idem.app.Idem;
 import app.mi2014.idem.models.User;
 import app.mi2014.idem.utils.PrefUtils;
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -49,6 +50,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private LinearLayout mDummyLayout;
     private Intent intent;
+    private SweetAlertDialog pDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,9 +112,14 @@ public class LoginActivity extends AppCompatActivity {
 
     private void disableButton(boolean state) {
         if (state) {
+            pDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
+            pDialog.setTitleText("Loading");
+            pDialog.setCancelable(false);
+            pDialog.show();
             mSignInButton.setEnabled(false);
             mSignInButton.setBackgroundColor(ContextCompat.getColor(getBaseContext(), R.color.buttonColorDisabled));
         } else {
+            pDialog.dismissWithAnimation();
             mSignInButton.setEnabled(true);
             mSignInButton.setBackgroundColor(ContextCompat.getColor(getBaseContext(), R.color.buttonColorPrimary));
         }
@@ -137,8 +144,6 @@ public class LoginActivity extends AppCompatActivity {
         mNimView.setError(null);
         mPasswordView.setError(null);
 
-        disableButton(true);
-
         String nim = mNimView.getText().toString();
         String password = mPasswordView.getText().toString();
 
@@ -162,9 +167,9 @@ public class LoginActivity extends AppCompatActivity {
 
         if (cancel) {
             focusView.requestFocus();
-            disableButton(false);
         } else {
             // out focus
+            disableButton(true);
             mDummyLayout.requestFocus();
             if (focusView != null) {
                 hideKeyboard(focusView);
@@ -210,7 +215,7 @@ public class LoginActivity extends AppCompatActivity {
                                     startActivity(intent);
                                     finish();
                                 }
-                            }, 1000);
+                            }, 2000);
                         }
 
                     } catch (JSONException e) {

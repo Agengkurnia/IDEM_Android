@@ -2,6 +2,7 @@ package app.mi2014.idem.app;
 
 import android.app.Application;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -52,11 +53,13 @@ public class AppController extends Application {
         // set the default tag if tag is empty
         req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
         getRequestQueue().add(req);
+        Log.d(AppController.TAG, "Request: " + req.getUrl());
     }
 
     public <T> void addToRequestQueue(Request<T> req) {
         req.setTag(TAG);
         getRequestQueue().add(req);
+        Log.d(AppController.TAG, "Request: " + req.getUrl());
     }
 
     public void cancelPendingRequests(Object tag) {
@@ -69,6 +72,7 @@ public class AppController extends Application {
         return new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                Log.d(AppController.TAG, error.getMessage());
                 Toast.makeText(AppController.getInstance().getBaseContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         };

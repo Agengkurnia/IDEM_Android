@@ -12,6 +12,7 @@ public class PrefUtils {
     public static final String KEY_USER_PICTURE = "user.picture";
     public static final String KEY_APP_SESSION = "app.session";
     public static final String KEY_APP_TOKEN = "app.token";
+    public static final String KEY_ACTIVE_COURSE = "user.courses";
 
     public static void save(String key, String value) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(AppController.getInstance().getBaseContext());

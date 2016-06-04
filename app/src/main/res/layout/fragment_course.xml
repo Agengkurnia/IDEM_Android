@@ -1,14 +1,11 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="app.mi2014.idem.views.fragments.HomeFragment">
+    android:id="@+id/recycler"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_above="@id/save"
+    android:layout_below="@id/set_course_text"
+    android:fillViewport="true"
+    tools:context="app.mi2014.idem.views.fragments.HomeFragment"
+    tools:listitem="@layout/item_course_setting" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:text="This is full of shit. yeah!" />
-
-</FrameLayout>
