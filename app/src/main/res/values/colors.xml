@@ -7,4 +7,6 @@
     <color name="textColorPrimary">#FFFFFF</color>
     <color name="buttonColorPrimary">#1c9fb5</color>
     <color name="buttonColorDisabled">#95a3a6</color>
+    <color name="divider">#CCC</color>
+    <color name="icons">#FFF</color>
 </resources>
